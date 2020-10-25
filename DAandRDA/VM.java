@@ -1,12 +1,14 @@
 package DAandRDA;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class VM {
 	// these are the instance variables of VM or we can simply call it as VM requirement from the hosts
 	
 	int cpuRequirement;
 	int memoryRequirement;
+	HashSet<Integer> h = new HashSet<Integer>();
 	int priorityListOfHosts[] = new int[100];
 	int host;
 	int pointer = 0;
