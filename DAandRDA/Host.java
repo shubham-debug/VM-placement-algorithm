@@ -10,7 +10,11 @@ public class Host {
 	int bestRejected;
 	int[] currentlyMatchedVMs = new int[100];
 	int[] priorityListOfVMs = new int[100];
+	// pointer point to the currentlyMatchedVMs that how many VMs are matched
+	// this point to the index in currentlyMatchedVMs numberOfVMs matched
 	int pointer = 0;
+	// pointerForVM point upto which index we have traversed the priorityListOfVMs
+	int pointerForVM = 0;
 	//constructor to initialize the cpuCapacity and memoryCapacity of hosts
 	Host() {
 		cpuCapacity = (int)(1000*Math.random());
