@@ -5,6 +5,10 @@ import java.io.FileReader;
 import java.io.*;
 
 
+
+// please refer to the RDA.java to see the comments 
+// we only add comments for the part which defer from RDA.java(which is simply choosing the host to propose)
+// only change is made in the DA method.
 public class randomisedRDA {
 	
 	public int index(int[] arr, int element) {
@@ -169,6 +173,7 @@ public class randomisedRDA {
 				break;
 			}
 			int j;
+			// In this section we choose a random host to propose.
 			while(true) {
 				j = (int)(numHost*Math.random());
 				if(arrayOfVMs[vm].h.contains(j)) {
@@ -269,7 +274,7 @@ public class randomisedRDA {
 		randomisedRDA ob = new randomisedRDA(); 
 		for(int i = 0; i<matching.length; i++) {
 			if(matching[i]==-1) {
-				continue;
+				factor[i] = 0;
 			}
 			int j = ob.index(arrayOfVMs[i].priorityListOfHosts, matching[i]);
 			float sfactor = ((numHost - j)*100)/numHost; 
@@ -280,7 +285,7 @@ public class randomisedRDA {
 		return factor;
 	}
 	
-	// These function of this method is the call the engage method until there is a VM in the waiting queue
+	
 	public void DA(int numHost, int numVM, VM[] arrayOfVMs, Host[] arrayOfHosts ) {
 		randomisedRDA ob = new randomisedRDA();
 		int[] waitingQueue = new int[numVM];
