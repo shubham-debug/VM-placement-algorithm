@@ -296,7 +296,7 @@ public class RDA {
 	// this method will calculate the satisfaction factor of the VMs based on the formula for satisfaction factor
 	public int[] satisfactionFactor(VM[] arrayOfVMs, int[] matching, int numHost) {
 		int[] factor = new int[matching.length];
-		Arrays.fill(factor, -1);
+//		Arrays.fill(factor, -1);
 		RDA ob = new RDA();
 		for(int i = 0; i<matching.length; i++) {
 			if(matching[i]==-1) {
@@ -314,7 +314,19 @@ public class RDA {
 	// this method will calculate the satisfaction factor of the Hosts based on the formula for the satisfaction factor.
 	public int[] satisfactionFactorHost(Host[] arrayOfHosts, int[] matching, int numVM, int numHost) {
 		int[] factor = new int[numHost];
-		// write the code here...
+		for(int i = 0; i<numHost; i++) {
+			int sfactor = 0;
+			for(int j = 0; j<arrayOfHosts[i].pointer; j++) {
+				int k = this.index(arrayOfHosts[i].priorityListOfVMs, arrayOfHosts[i].currentlyMatchedVMs[j]);
+				float temp = ((numVM-k)*100)/numVM;
+				sfactor += (int)temp;
+			}
+			if(arrayOfHosts[i].pointer == 0) {
+				continue;
+			}
+			sfactor = sfactor/arrayOfHosts[i].pointer;
+			factor[i] = sfactor;
+		}
 		return factor;
 	} 
 	
@@ -372,9 +384,11 @@ public class RDA {
 		System.out.println();
 		//This section print the satisfaction factor of all the VM
 		// if the VM is not placed then the satisfaction factor of that VM is -1
-		System.out.println("This is satisfaction factor");
+		System.out.println("This is satisfaction factor for VMs");
 		int[] factor = ob.satisfactionFactor(arrayOfVMs, matching, numHost); 
 		System.out.println(Arrays.toString(factor));
+		System.out.println("This is satisfaction factor for Hosts");
+		System.out.println(Arrays.toString(ob.satisfactionFactorHost(arrayOfHosts, matching, numVM, numHost)));
 		
 		
 	}

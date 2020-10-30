@@ -22,7 +22,7 @@ public class RDAhostSpecific {
 	}
 	
 	
-	
+	// this method will choose that whether currHost is more preferred or not than the current matching
 	public int choose(int vm, VM currVM, int host, Host currHost) {
 		int priorityOfcurrHost = this.index(currVM.priorityListOfHosts, host);
 		int priorityOfMatchedHost = this.index(currVM.priorityListOfHosts, currVM.host);
@@ -34,7 +34,7 @@ public class RDAhostSpecific {
 		return hostThatIsRejected;	
 	}
 	
-	
+	// this method will remove vm from curentlyMatched array of host
 	public void updateCurrentlyMatchedArrayOfHost(Host host, int vm) {
 		int[] temp = new int[host.currentlyMatchedVMs.length];
 		int counter = 0;
@@ -69,13 +69,21 @@ public class RDAhostSpecific {
 		}
 	}
 	
+	// This method will send proposal to the VMs one by one and check that VM can be matched or not
+	// If the VM is currently matched then we check that whether currHost is better choice for that VM or not
 	public int[] engage(int host, Host currHost, VM[] arrayOfVMs, ArrayList<ArrayList<Integer>> matching, int numHosts, int numVMs, Host[] arrayOfHosts) {
 		int[] hostWhichLostPairedVMs = new int[numHosts];
 		int count = 0;
-		//System.out.println(Arrays.toString(currHost.priorityListOfVMs));
 		Arrays.fill(hostWhichLostPairedVMs, -1);
+		// this loop will continue until the currHost has capacity and currHost does not propose all the VMs in its preference list
 		while(currHost.cpuCapacity>0 && currHost.memoryCapacity>0 && currHost.pointerForVM<numVMs) {
 			int vm = currHost.priorityListOfVMs[currHost.pointerForVM];
+			// if the vm = -1, this means that currHost proposed all the VMs
+			// if vm>currHost.bestRejected we break the loop because the intuition says that
+			// as the host is proposing VMs most prefered VM first and then on and on.
+			// so if vm>currHost.bestRejected simply means that from this vm to end of preference list all the other VMs has less priority that bestRejected
+			// here vm>currHost.bestRejected is taken because we are considering index of vm in the preference list as priority and the vm which has smaller index
+			// is most preferred
 			if(vm == -1 || vm>currHost.bestRejected) {
 				break; 
 			}
@@ -114,7 +122,7 @@ public class RDAhostSpecific {
 					matching.get(host).add(vm);
 				}
 				
-			} 
+			}  
 			else {
 				currHost.bestRejected = currHost.pointer;
 				this.removeAllVMThatHasLessPriorityThanBestRejected(currHost, numVMs, matching, arrayOfVMs, host);
@@ -135,11 +143,55 @@ public class RDAhostSpecific {
 			
 	}
 	
+	// this method will calculate the satisfaction factor of the VMs based on the formula for satisfaction factor
+	public int[] satisfactionFactor(VM[] arrayOfVMs, int numVM, int numHost) {
+		int[] factor = new int[numVM];
+//		Arrays.fill(factor, -1);
+		RDA ob = new RDA();
+		for(int i = 0; i<numVM; i++) {
+			if(arrayOfVMs[i].host == -1) {
+				continue;
+			}
+			int j = ob.index(arrayOfVMs[i].priorityListOfHosts, arrayOfVMs[i].host);
+			float sfactor = ((numHost - j)*100)/numHost; 
+			int sfact = (int)sfactor;
+			factor[i] = sfact;
+		}
+			
+		return factor;
+	}
+		
+	// this method will calculate the satisfaction factor of the Hosts based on the formula for the satisfaction factor.
+	public int[] satisfactionFactorHost(Host[] arrayOfHosts, int numVM, int numHost) {
+		int[] factor = new int[numHost];
+		for(int i = 0; i<numHost; i++) {
+			int sfactor = 0;
+			for(int j = 0; j<arrayOfHosts[i].pointer; j++) {
+				int k = this.index(arrayOfHosts[i].priorityListOfVMs, arrayOfHosts[i].currentlyMatchedVMs[j]);
+				float temp = ((numVM-k)*100)/numVM;
+				sfactor += (int)temp;
+			}
+			if(arrayOfHosts[i].pointer == 0) {
+				continue;
+			}
+			sfactor = sfactor/arrayOfHosts[i].pointer;
+			factor[i] = sfactor;
+		}
+		return factor;
+	}
 	
+	 
 	// This is the rDA method to perform matching (Host Specific) 
 	public void rDA(int numHosts, int numVMs, VM[] arrayOfVMs, Host[] arrayOfHosts){
+		// waitingQueue will schedule the host to go for matching
+		// It represent the host as the index of that host in arrayOfHosts array
 		int[] waitingQueue = new int[numHosts];
 		Arrays.fill(waitingQueue, -1);
+		// matching will contain the VM matched to a particular host.
+		// if matching.get(0) = [1,2,5]
+		//    this means that host at index 0 in arrayOfHosts in matched with VMs at index 1,2 & 5 in arrayOfVMs
+		// if matching.get(0) = [] 
+		//     this means that host at index 0 in arrayOfHosts does not matched with any VMs
 		ArrayList<ArrayList<Integer>> matching = new ArrayList<ArrayList<Integer>>();
 		for(int i = 0; i<numHosts; i++) {
 			waitingQueue[i] = i;
@@ -148,13 +200,12 @@ public class RDAhostSpecific {
 		}
 		int capacity = numHosts; 
 		while(capacity>0) {
-//			System.out.println(matching);
-//			System.out.println(Arrays.toString(waitingQueue));
 			int host = this.popArray(waitingQueue);
 			capacity -= 1;
 			if(host == -1) {
 				break;
 			}
+			// engage method will return an array of host which lost matched VMs
 			int[] hostWhichLostPairedVMs = this.engage(host, arrayOfHosts[host], arrayOfVMs, matching, numHosts, numVMs, arrayOfHosts);
 			if(hostWhichLostPairedVMs[0] != -1) { 
 				int counter = 0;
@@ -172,6 +223,13 @@ public class RDAhostSpecific {
 			System.out.println("Host at index "+i+" contains: "+matching.get(i));
 		}
 		// here call method for satisfaction factor 
+		//This section print the satisfaction factor of all the VM
+		// if the VM is not placed then the satisfaction factor of that VM is -1
+		System.out.println("This is satisfaction factor for VMs");
+		int[] factor = this.satisfactionFactor(arrayOfVMs, numVMs, numHosts); 
+		System.out.println(Arrays.toString(factor));
+		System.out.println("This is satisfaction factor for Hosts");
+		System.out.println(Arrays.toString(this.satisfactionFactorHost(arrayOfHosts, numVMs, numHosts)));
 		 
 	}
 	

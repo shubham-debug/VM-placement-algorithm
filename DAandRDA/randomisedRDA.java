@@ -285,6 +285,25 @@ public class randomisedRDA {
 		return factor;
 	}
 	
+	// this method will calculate the satisfaction factor of the Hosts based on the formula for the satisfaction factor.
+	public int[] satisfactionFactorHost(Host[] arrayOfHosts, int[] matching, int numVM, int numHost) {
+		int[] factor = new int[numHost];
+		for(int i = 0; i<numHost; i++) {
+			int sfactor = 0;
+			for(int j = 0; j<arrayOfHosts[i].pointer; j++) {
+				int k = this.index(arrayOfHosts[i].priorityListOfVMs, arrayOfHosts[i].currentlyMatchedVMs[j]);
+				float temp = ((numVM-k)*100)/numVM;
+				sfactor += (int)temp;
+			}
+			if(arrayOfHosts[i].pointer == 0) {
+				continue;
+			}
+			sfactor = sfactor/arrayOfHosts[i].pointer;
+			factor[i] = sfactor;
+		}
+		return factor;
+	} 
+	
 	
 	public void DA(int numHost, int numVM, VM[] arrayOfVMs, Host[] arrayOfHosts ) {
 		randomisedRDA ob = new randomisedRDA();
@@ -325,7 +344,8 @@ public class randomisedRDA {
 		System.out.println("This is satisfaction factor");
 		int[] factor = ob.satisfactionFactor(arrayOfVMs, matching, numHost); 
 		System.out.println(Arrays.toString(factor));
-		
+		System.out.println("This is satisfaction factor for Hosts");
+		System.out.println(Arrays.toString(ob.satisfactionFactorHost(arrayOfHosts, matching, numVM, numHost)));
 		
 	}
 	
