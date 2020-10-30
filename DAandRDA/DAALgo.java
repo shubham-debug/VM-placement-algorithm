@@ -211,9 +211,9 @@ public class DAALgo {
 	public static void main(String[] args) throws IOException {
 		
 		Scanner sc = new Scanner(System.in); 
-		System.out.println("Enter the number of VMs");
+		System.out.println("Enter the number of VMs(less than 99)");
 		int numberOfVMs = sc.nextInt();
-		System.out.println("Enter the number of Hosts");
+		System.out.println("Enter the number of Hosts(less than 99)");
 		int numberOfHosts = sc.nextInt();
 		VM[] arrayOfVMs = new VM[numberOfVMs];
 		for(int i = 0; i<numberOfVMs; i++) {
